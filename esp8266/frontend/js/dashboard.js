@@ -188,6 +188,22 @@ async function triggerAlertTest() {
     if (secondsLeft <= 0) {
       clearInterval(countdown);
       clearInterval(testInterval);
+      
+      // Send one final "Normal" reading to reset the dashboard
+      fetch(API_BASE + "/sensor-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-KEY": API_KEY,
+        },
+        body: JSON.stringify({
+          device_id: testId,
+          co_ppm: 0.5,
+          co2_ppm: 400,
+          temperature: 25.0,
+        }),
+      }).catch(e => console.error("Reset reading failed", e));
+
       btn.disabled = false;
       btn.textContent = originalText;
     }
