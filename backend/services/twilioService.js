@@ -6,27 +6,27 @@ const client = twilio(
 );
 
 async function makeAlertCall(coValue, co2Value) {
-  await client.calls.create({
-    twiml: `<Response>
-              <Pause length="1"/>
-              <Say voice="alice">
-                Attention. This is the Vehicle Emission Monitoring System.
-              </Say>
-              <Pause length="1"/>
-              <Say voice="alice" loop="2">
-                Emergency Alert. Dangerous gas levels detected. 
-                Carbon Monoxide is at ${coValue} PPM. 
-                Carbon Dioxide is at ${co2Value} PPM. 
-                Please inspect the vehicle immediately.
-              </Say>
-              <Pause length="1"/>
-              <Say voice="alice">
-                Goodbye.
-              </Say>
-            </Response>`,
-    to: process.env.TWILIO_TO_NUMBER,
-    from: process.env.TWILIO_FROM_NUMBER,
-  });
+  try {
+    const call = await client.calls.create({
+      twiml: `<Response>
+                <Say voice="Polly.Amy">
+                  Attention. This is the Vehicle Emission Monitoring System.
+                  Emergency Alert. Dangerous gas levels detected. 
+                  Carbon Monoxide is at ${coValue} PPM. 
+                  Carbon Dioxide is at ${co2Value} PPM. 
+                  Please inspect the vehicle immediately.
+                  Goodbye.
+                </Say>
+              </Response>`,
+      to: process.env.TWILIO_TO_NUMBER,
+      from: process.env.TWILIO_FROM_NUMBER,
+    });
+    console.log(`[TWILIO] Call initiated successfully. SID: ${call.sid}`);
+    return call;
+  } catch (error) {
+    console.error(`[TWILIO] Error making call: ${error.message}`);
+    throw error;
+  }
 }
 
 module.exports = {
