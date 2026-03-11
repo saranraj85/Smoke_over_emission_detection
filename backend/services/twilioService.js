@@ -8,12 +8,20 @@ const client = twilio(
 async function makeAlertCall(coValue, co2Value) {
   await client.calls.create({
     twiml: `<Response>
+              <Pause length="1"/>
+              <Say voice="alice">
+                Attention. This is the Vehicle Emission Monitoring System.
+              </Say>
+              <Pause length="1"/>
               <Say voice="alice" loop="2">
-                Alert! Vehicle Emission Detection System has detected
-                dangerous gas levels. Carbon Monoxide is at
-                ${coValue} parts per million.
-                Carbon Dioxide is at ${co2Value} parts per million.
-                Immediate action is required. Please check the vehicle.
+                Emergency Alert. Dangerous gas levels detected. 
+                Carbon Monoxide is at ${coValue} PPM. 
+                Carbon Dioxide is at ${co2Value} PPM. 
+                Please inspect the vehicle immediately.
+              </Say>
+              <Pause length="1"/>
+              <Say voice="alice">
+                Goodbye.
               </Say>
             </Response>`,
     to: process.env.TWILIO_TO_NUMBER,
