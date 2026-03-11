@@ -144,6 +144,54 @@ function init() {
 
   fetchTodayStats();
   setInterval(fetchTodayStats, 60000);
+
+  const testAlertBtn = document.getElementById("testAlertBtn");
+  testAlertBtn.addEventListener("click", triggerAlertTest);
+}
+
+async function triggerAlertTest() {
+  const btn = document.getElementById("testAlertBtn");
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  
+  // Use a unique ID each time to bypass 5-min cooldown
+  const testId = `TEST_DEV_${Math.floor(Date.now() / 1000)}`;
+  let secondsLeft = 30;
+
+  const runTest = async () => {
+    try {
+      await fetch(API_BASE + "/sensor-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-KEY": API_KEY,
+        },
+        body: JSON.stringify({
+          device_id: testId,
+          co_ppm: 75,   // Above danger level (70)
+          co2_ppm: 2100, // Above danger level (2000)
+          temperature: 28.5,
+        }),
+      });
+    } catch (e) {
+      console.error("Test alert failed", e);
+    }
+  };
+
+  // Run immediately then every 10s
+  runTest();
+  const testInterval = setInterval(runTest, 10000);
+
+  const countdown = setInterval(() => {
+    secondsLeft--;
+    btn.textContent = `Testing... (${secondsLeft}s)`;
+    if (secondsLeft <= 0) {
+      clearInterval(countdown);
+      clearInterval(testInterval);
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  }, 1000);
 }
 
 init();
