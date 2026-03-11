@@ -10,6 +10,7 @@ import { initCharts, updateCharts } from "./charts.js";
 
 const API_BASE = `${window.location.origin}/api`;
 const API_KEY = "smoke_emission_secret_key_2026";
+let isTesting = false;
 
 const clockEl = document.getElementById("clock");
 const deviceStatusPill = document.getElementById("deviceStatusPill");
@@ -95,8 +96,14 @@ function listenSensorReadings() {
   );
 
   onSnapshot(q, (snapshot) => {
-    const readings = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    let readings = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     if (!readings.length) return;
+
+    // Filter out test readings when not in test mode
+    if (!isTesting) {
+      readings = readings.filter(r => !r.device_id?.startsWith("TEST_DEV_"));
+      if (!readings.length) return;
+    }
 
     const latestWithTimestamp = readings.find((reading) => reading.timestamp?.seconds) || readings[0];
     updateOverview(latestWithTimestamp);
@@ -153,6 +160,7 @@ async function triggerAlertTest() {
   const btn = document.getElementById("testAlertBtn");
   const originalText = btn.textContent;
   btn.disabled = true;
+  isTesting = true;
   
   // Use a unique ID each time to bypass 5-min cooldown
   const testId = `TEST_DEV_${Math.floor(Date.now() / 1000)}`;
@@ -205,6 +213,7 @@ async function triggerAlertTest() {
       }).catch(e => console.error("Reset reading failed", e));
 
       btn.disabled = false;
+      isTesting = false;
       btn.textContent = originalText;
     }
   }, 1000);

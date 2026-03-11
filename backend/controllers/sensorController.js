@@ -116,7 +116,13 @@ async function getTodayStats(req, res) {
       .where("timestamp", ">=", admin.firestore.Timestamp.fromDate(startOfDay))
       .get();
 
-    const readings = readingsSnapshot.docs.map((doc) => doc.data());
+    const readings = readingsSnapshot.docs
+      .map((doc) => doc.data())
+      .filter((r) => !r.device_id?.startsWith("TEST_DEV_"));
+
+    const alerts = alertsSnapshot.docs
+      .map((doc) => doc.data())
+      .filter((a) => !a.device_id?.startsWith("TEST_DEV_"));
 
     if (!readings.length) {
       return res.json({
@@ -127,7 +133,7 @@ async function getTodayStats(req, res) {
           max_co: 0,
           max_co2: 0,
           total_readings: 0,
-          total_alerts: alertsSnapshot.size,
+          total_alerts: alerts.length,
         },
       });
     }
