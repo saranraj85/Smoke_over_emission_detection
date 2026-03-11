@@ -7,7 +7,7 @@
 const char* WIFI_SSID = "wifi004";
 const char* WIFI_PASSWORD = "123456789";
 const char* SERVER_URL = "http://10.125.50.164:3000/api/sensor-data";
-const char* API_KEY = "veh_emission_2026_secure_9xK4pQ";
+const char* API_KEY = "smoke_emission_secret_key_2026";
 const char* DEVICE_ID = "ESP_001";
 
 #define MQ_PIN A0
